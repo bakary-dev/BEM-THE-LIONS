@@ -27,7 +27,7 @@ export function AnimatedCounter({ value, prefix = "", duration = 1400 }: { value
         };
         frame = requestAnimationFrame(tick);
       },
-      { threshold: 0.4 },
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => {

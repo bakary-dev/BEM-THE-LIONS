@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BRAND } from "@/config/brand";
 
 type Props = { size?: number; className?: string; priority?: boolean };
@@ -11,6 +11,13 @@ type Props = { size?: number; className?: string; priority?: boolean };
  */
 export function Logo({ size = 48, className = "", priority = false }: Props) {
   const [failed, setFailed] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // L'erreur de chargement peut survenir avant l'hydratation : on vérifie l'état de l'image au montage.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
+  }, []);
   if (failed) {
     return (
       <span
@@ -27,6 +34,7 @@ export function Logo({ size = 48, className = "", priority = false }: Props) {
   }
   return (
     <img
+      ref={imgRef}
       src={BRAND.logoSrc}
       alt={`Logo ${BRAND.name}`}
       width={size}

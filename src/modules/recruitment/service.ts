@@ -58,10 +58,27 @@ function duplicateFromPrismaError(err: unknown): DuplicateCandidateError | null 
   return null;
 }
 
+/** Réserve le prochain numéro de séquence (incrément atomique en une seule requête). */
+async function nextSequence(): Promise<number> {
+  try {
+    const counter = await prisma.counter.update({ where: { key: COUNTER_KEY }, data: { value: { increment: 1 } } });
+    return counter.value;
+  } catch (err) {
+    if (!(err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025")) throw err;
+    // Premier candidat : on crée le compteur (une création concurrente échoue en P2002 → on réessaie l'incrément).
+    try {
+      await prisma.counter.create({ data: { key: COUNTER_KEY, value: 0 } });
+    } catch (e) {
+      if (!(e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002")) throw e;
+    }
+    return nextSequence();
+  }
+}
+
 /**
  * Crée un candidat avec un numéro unique (BEM-2026-XXXX) et son QR Code.
- * Le compteur est incrémenté dans la même transaction que la création ;
- * les contraintes d'unicité de la base garantissent l'absence de doublon.
+ * Le numéro provient d'un compteur incrémenté atomiquement ; les contraintes d'unicité
+ * de la base (numéro, QR Code, email, téléphone) garantissent l'absence de doublon.
  */
 export async function registerCandidate(input: RegistrationInput): Promise<Candidate> {
   const duplicates = await findDuplicates(input);
@@ -69,27 +86,20 @@ export async function registerCandidate(input: RegistrationInput): Promise<Candi
 
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
-      return await prisma.$transaction(async (tx) => {
-        const counter = await tx.counter.upsert({
-          where: { key: COUNTER_KEY },
-          create: { key: COUNTER_KEY, value: 1 },
-          update: { value: { increment: 1 } },
-        });
-        const candidateNumber = formatCandidateNumber(counter.value);
-        return tx.candidate.create({
-          data: {
-            candidateNumber,
-            qrCode: candidateNumber,
-            firstName: input.firstName,
-            lastName: input.lastName,
-            gender: input.gender,
-            studyYear: input.studyYear,
-            fieldOfStudy: input.fieldOfStudy,
-            phone: input.phone,
-            email: input.email,
-            consentAt: new Date(),
-          },
-        });
+      const candidateNumber = formatCandidateNumber(await nextSequence());
+      return await prisma.candidate.create({
+        data: {
+          candidateNumber,
+          qrCode: candidateNumber,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          gender: input.gender,
+          studyYear: input.studyYear,
+          fieldOfStudy: input.fieldOfStudy,
+          phone: input.phone,
+          email: input.email,
+          consentAt: new Date(),
+        },
       });
     } catch (err) {
       const dup = duplicateFromPrismaError(err);
@@ -230,9 +240,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     scanned,
     evaluated,
     byGender: genders.map((g) => ({ label: g.gender, value: g._count._all })),
-    byStudyYear: years
-      .map((y) => ({ label: y.studyYear, value: y._count._all }))
-      .sort((a, b) => b.value - a.value),
+    byStudyYear: years.map((y) => ({ label: y.studyYear, value: y._count._all })).sort((a, b) => b.value - a.value),
     byDay: [...dayCounts.entries()].slice(-14).map(([label, value]) => ({ label, value })),
   };
 }

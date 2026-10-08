@@ -10,7 +10,7 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <div className="court-bg flex min-h-dvh flex-col">
       <SiteHeader />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 pb-16">{children}</div>
       <SiteFooter season={season} />
       <HelpFab />
     </div>

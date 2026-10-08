@@ -12,7 +12,7 @@ export default async function HomePage() {
     { value: <AnimatedCounter value={s.teamMembersCount} prefix="+" />, label: "Membres dans l'équipe" },
     { value: <AnimatedCounter value={s.winsCount} prefix="+" />, label: "Victoires" },
     { value: <AnimatedCounter value={s.lossesCount} />, label: "Défaites" },
-    { value: s.previousSeason, label: "Saison précédente" },
+    { value: <span className="whitespace-nowrap text-4xl sm:text-5xl">{s.previousSeason}</span>, label: "Saison précédente" },
   ];
 
   return (
@@ -25,8 +25,8 @@ export default async function HomePage() {
         </div>
         <p className="eyebrow mt-8 animate-fade-in">Bienvenue · {s.city}</p>
         <h1 className="mt-3 animate-slide-up font-display text-6xl leading-none tracking-wide sm:text-8xl">{s.teamName}</h1>
-        <p className="mt-3 animate-slide-up text-sm font-bold uppercase tracking-[0.25em] text-gold [animation-delay:150ms] sm:text-lg">
-          Recrutement Basketball — {s.season}
+        <p className="mt-3 animate-slide-up text-sm font-bold uppercase tracking-[0.2em] text-gold [animation-delay:150ms] sm:text-lg">
+          Recrutement Basketball — <span className="whitespace-nowrap">{s.season}</span>
         </p>
         <p className="mt-6 animate-slide-up text-2xl font-extrabold [animation-delay:300ms] sm:text-3xl">{BRAND.tagline}</p>
 
