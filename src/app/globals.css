@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink text-white font-sans antialiased;
+  min-height: 100dvh;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  .card {
+    @apply rounded-2xl border border-white/10 bg-ink-800/80 backdrop-blur;
+  }
+  .btn {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold uppercase tracking-wide transition
+      duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-ink
+      active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-gold text-ink shadow-[0_10px_30px_-10px_rgba(245,183,0,.6)] hover:-translate-y-0.5 hover:bg-gold-400;
+  }
+  .btn-secondary {
+    @apply btn border border-white/15 bg-white/5 text-white hover:-translate-y-0.5 hover:border-gold/60 hover:bg-white/10;
+  }
+  .btn-whatsapp {
+    @apply btn bg-whatsapp text-ink hover:-translate-y-0.5 hover:brightness-110;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-white hover:brightness-110;
+  }
+  .btn-success {
+    @apply btn bg-success text-ink hover:brightness-110;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-mist-300;
+  }
+  .input {
+    @apply block min-h-[48px] w-full rounded-xl border border-white/10 bg-ink-700 px-4 py-3 text-base text-white placeholder:text-mist-500
+      transition focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30;
+  }
+  .input-error {
+    @apply border-danger focus:border-danger focus:ring-danger/30;
+  }
+  .field-error {
+    @apply mt-1.5 text-sm text-red-400;
+  }
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.25em] text-gold;
+  }
+  .court-bg {
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(245, 183, 0, 0.18), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(255, 122, 26, 0.12), transparent 50%),
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
